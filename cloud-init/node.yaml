@@ -1,0 +1,50 @@
+#cloud-config
+# Node bootstrap: everything from Week 0 plus k3s, as code.
+# Rendered by Terraform templatefile(); ${...} are filled in from Terraform
+# variables, so the two secrets never live in this public file.
+
+package_update: true
+package_upgrade: true
+packages:
+  - ufw
+  - unattended-upgrades # security updates; enabled by default on Ubuntu 24.04
+
+users:
+  - name: ops
+    groups: [sudo]
+    shell: /bin/bash
+    lock_passwd: false
+    hashed_passwd: ${ops_password_hash} # for sudo and the Contabo VNC break-glass console
+
+disable_root: true
+ssh_pwauth: false
+
+write_files:
+  - path: /etc/ssh/sshd_config.d/00-hardening.conf
+    permissions: "0644"
+    content: |
+      PermitRootLogin no
+      PasswordAuthentication no
+      KbdInteractiveAuthentication no
+
+runcmd:
+  - systemctl reload ssh || true
+
+  # Firewall: default deny in; only Tailscale, plus k3s pod/service networks.
+  # 80/443 are opened when Traefik serves the apps.
+  - ufw default deny incoming
+  - ufw default allow outgoing
+  - ufw allow in on tailscale0
+  - ufw allow 41641/udp
+  - ufw allow from 10.42.0.0/16 to any
+  - ufw allow from 10.43.0.0/16 to any
+  - ufw --force enable
+
+  # Tailscale with Tailscale SSH. The one-time auth key tags the node, so
+  # its key never expires and the tailnet policy grants SSH to tag:server.
+  - curl -fsSL https://tailscale.com/install.sh | sh
+  - tailscale up --ssh --auth-key=${tailscale_auth_key} --advertise-tags=tag:server
+
+  # k3s, pinned. Secrets are encrypted at rest; the API cert is valid for the
+  # Tailscale name and IP so kubectl works from your devices over the tailnet.
+  - curl -sfL https://get.k3s.io | INSTALL_K3S_VERSION=v1.37.2+k3s1 sh -s - server --secrets-encryption --tls-san vmi3749255 --tls-san "$(tailscale ip -4)"
