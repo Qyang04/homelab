@@ -1,0 +1,6 @@
+# SOPS encrypts any *.enc.env / *.enc.yaml file for these age public keys.
+# Public keys only: they can encrypt, never decrypt.
+creation_rules:
+  - path_regex: \.enc\.(env|yaml)$
+    age: >-
+      age15zl4fcjfekvad02xn6pu9yyxc65hsvzc3chdghngxjczxgmqy52s6yfmtl
