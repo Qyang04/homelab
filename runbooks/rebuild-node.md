@@ -36,6 +36,10 @@ disaster-recovery drill and for recovering a broken node.
 6. Put `user_data` back into `ignore_changes`, `terraform plan` shows
    no changes, delete `rebuild.tfplan`, commit.
 
+`cloud-init status` reports `error` on every boot because of Contabo's own
+injected `bootcmd` (`pkill -HUP sshd` exits 1). Expected; check that the
+error list contains only `bootcmd` and that `runcmd` / `scripts_user` succeeded.
+
 ## If it goes wrong
 
 Contabo panel → VNC console, log in as `ops`, read

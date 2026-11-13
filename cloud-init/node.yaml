@@ -5,6 +5,7 @@
 
 package_update: true
 package_upgrade: true
+package_reboot_if_required: true # reboots once at the end if upgrades need it
 packages:
   - ufw
   - unattended-upgrades # security updates; enabled by default on Ubuntu 24.04
@@ -27,7 +28,12 @@ write_files:
       PasswordAuthentication no
       KbdInteractiveAuthentication no
 
+# Contabo merges its own config into this one: a bootcmd that sets
+# "PermitRootLogin yes" in sshd_config on every boot (our 00- drop-in wins,
+# first value read is used) and a chpasswd that sets a root password.
+# runcmd runs after both, so it locks root's password here.
 runcmd:
+  - passwd -l root
   - systemctl reload ssh || true
 
   # Firewall: default deny in; only Tailscale, plus k3s pod/service networks.
