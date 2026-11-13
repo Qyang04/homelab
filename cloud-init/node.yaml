@@ -1,7 +1,7 @@
 #cloud-config
 # Node bootstrap: everything from Week 0 plus k3s, as code.
-# Rendered by Terraform templatefile(); ${...} are filled in from Terraform
-# variables, so the two secrets never live in this public file.
+# Rendered by Terraform templatefile(): the two dollar-brace placeholders are
+# filled in from Terraform variables, so the secrets never live in this file.
 
 package_update: true
 package_upgrade: true
