@@ -1,0 +1,19 @@
+# Terraform: provider downloads and state (state can contain secrets)
+.terraform/
+*.tfstate
+*.tfstate.*
+crash.log
+*.tfplan
+
+# Secrets: only SOPS-encrypted files (*.enc.yaml) may be committed
+*.tfvars
+!*.example.tfvars
+.env
+*.agekey
+age.key
+
+# Editors / OS
+.vscode/
+.idea/
+Thumbs.db
+.DS_Store
