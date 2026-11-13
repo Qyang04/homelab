@@ -1,0 +1,22 @@
+# Overrides for the Traefik that k3s installs (chart 41.6.x, Traefik 3.7).
+# - Redirect all http:// to https:// (safe: certificates use DNS-01, not HTTP-01).
+# - externalTrafficPolicy: Local keeps the visitor's real IP instead of an
+#   internal 10.42.x address, needed for login rate limiting and audit logs.
+apiVersion: helm.cattle.io/v1
+kind: HelmChartConfig
+metadata:
+  name: traefik
+  namespace: kube-system
+spec:
+  valuesContent: |-
+    ports:
+      web:
+        http:
+          redirections:
+            entryPoint:
+              to: websecure
+              scheme: https
+              permanent: true
+    service:
+      spec:
+        externalTrafficPolicy: Local
