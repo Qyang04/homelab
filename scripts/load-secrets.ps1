@@ -14,5 +14,11 @@ foreach ($line in $lines) {
     $count++
   }
 }
+# kubectl/helm talk to the homelab cluster over Tailscale (file kept outside the repo).
+$env:KUBECONFIG = Join-Path $HOME ".kube\homelab.yaml"
+# Prefer the winget kubectl (matches the cluster) over Docker Desktop's older one.
+$env:Path = (Join-Path $env:LOCALAPPDATA "Microsoft\WinGet\Links") + ";" + $env:Path
+
+Write-Host "KUBECONFIG -> $env:KUBECONFIG"
 Write-Host "Loaded $count secrets into this session (names only):"
 $lines | ForEach-Object { if ($_ -match '^\s*([A-Za-z_][A-Za-z0-9_]*)=') { "  $($Matches[1])" } }
