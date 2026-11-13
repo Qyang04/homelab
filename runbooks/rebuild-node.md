@@ -33,7 +33,11 @@ disaster-recovery drill and for recovering a broken node.
    - `ssh duit` logs in as `ops`
    - `sudo ufw status` shows the rules; `sudo k3s kubectl get nodes` is `Ready`
    - `ssh root@62.171.175.67` times out
-6. Put `user_data` back into `ignore_changes`, `terraform plan` shows
+6. Keep the node's Tailscale IP stable: Tailscale admin → Machines →
+   `vmi3749255` → Edit machine IPv4 → `100.82.116.83`. It is referenced in
+   `terraform/dns.tf` (`tailscale_ip`) and `apps/traefik/helmchartconfig.yaml`
+   (`externalIPs`); if it ever has to change, update both.
+7. Put `user_data` back into `ignore_changes`, `terraform plan` shows
    no changes, delete `rebuild.tfplan`, commit.
 
 `cloud-init status` reports `error` on every boot because of Contabo's own

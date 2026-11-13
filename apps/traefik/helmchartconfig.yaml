@@ -20,3 +20,9 @@ spec:
     service:
       spec:
         externalTrafficPolicy: Local
+        # Also serve on the node's Tailscale IP (admin tools). kube-proxy then
+        # routes it straight to Traefik like the public IP. Without this,
+        # tailnet traffic goes via the svclb pod to a NodePort on the public
+        # IP, which nodeport-addresses (rightly) refuses.
+        externalIPs:
+          - 100.82.116.83
