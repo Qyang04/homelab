@@ -1,6 +1,12 @@
-# SOPS encrypts any *.enc.env / *.enc.yaml file for these age public keys.
+# SOPS encrypts matching files for these age public keys.
 # Public keys only: they can encrypt, never decrypt.
 creation_rules:
-  - path_regex: \.enc\.(env|yaml)$
+  # Kubernetes Secrets: encrypt only the secret values, keep metadata readable.
+  - path_regex: \.enc\.yaml$
+    encrypted_regex: ^(data|stringData)$
+    age: >-
+      age15zl4fcjfekvad02xn6pu9yyxc65hsvzc3chdghngxjczxgmqy52s6yfmtl
+  # Env files (Terraform credentials): every value encrypted.
+  - path_regex: \.enc\.env$
     age: >-
       age15zl4fcjfekvad02xn6pu9yyxc65hsvzc3chdghngxjczxgmqy52s6yfmtl

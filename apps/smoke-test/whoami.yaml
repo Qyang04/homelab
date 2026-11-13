@@ -62,8 +62,13 @@ kind: Ingress
 metadata:
   name: whoami
   namespace: smoke-test
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
 spec:
   ingressClassName: traefik
+  tls:
+    - hosts: [duit.luiqiuyang.com]
+      secretName: duit-tls
   rules:
     - host: duit.luiqiuyang.com
       http:

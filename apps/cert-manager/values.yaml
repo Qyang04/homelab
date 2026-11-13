@@ -1,0 +1,16 @@
+# cert-manager Helm values. Chart: oci://quay.io/jetstack/charts/cert-manager v1.21.3
+crds:
+  enabled: true
+
+# Small single-node cluster: modest requests, memory caps.
+resources:
+  requests: { cpu: 10m, memory: 48Mi }
+  limits: { memory: 128Mi }
+webhook:
+  resources:
+    requests: { cpu: 10m, memory: 24Mi }
+    limits: { memory: 64Mi }
+cainjector:
+  resources:
+    requests: { cpu: 10m, memory: 48Mi }
+    limits: { memory: 128Mi }
