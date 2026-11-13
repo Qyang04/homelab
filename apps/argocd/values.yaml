@@ -1,4 +1,5 @@
-# Argo CD Helm values. Chart: oci://ghcr.io/argoproj/argo-helm/argo-cd 10.18.0 (Argo CD v3.6.1)
+# Argo CD Helm values. Chart: argo-cd 10.18.0 (Argo CD v3.6.1) from
+# https://argoproj.github.io/argo-helm, deployed by clusters/prod/apps/argocd.yaml.
 global:
   domain: argocd.luiqiuyang.com
 
