@@ -40,6 +40,33 @@ disaster-recovery drill and for recovering a broken node.
 7. Put `user_data` back into `ignore_changes`, `terraform plan` shows
    no changes, delete `rebuild.tfplan`, commit.
 
+## Bootstrap the cluster
+
+A rebuilt node has a fresh k3s with nothing on it. Three things are applied by
+hand, in this order; Argo CD deploys everything else from Git.
+
+1. Refresh `~/.kube/homelab.yaml` from the new node (k3s made a new CA), then
+   `. .\scripts\load-secrets.ps1`.
+2. Cluster age key (KSOPS needs it; the repo-server pod will not start without it):
+
+   ```powershell
+   kubectl create namespace argocd
+   sops --decrypt secrets\argocd-sops-age.enc.yaml | kubectl apply --server-side -f -
+   ```
+
+3. Argo CD, once, with the same chart version and values its Application uses
+   (`clusters/prod/apps/argocd.yaml`), then the app-of-apps root:
+
+   ```powershell
+   helm install argocd argo-cd --repo https://argoproj.github.io/argo-helm --version 10.18.0 -n argocd -f apps\argocd\values.yaml
+   kubectl apply -f clusters\prod\root.yaml
+   ```
+
+4. Wait until `kubectl get applications -n argocd` shows every app
+   `Synced` / `Healthy`. From here on, never `helm upgrade` Argo CD: it manages itself.
+
+## Notes
+
 `cloud-init status` reports `error` on every boot because of Contabo's own
 injected `bootcmd` (`pkill -HUP sshd` exits 1). Expected; check that the
 error list contains only `bootcmd` and that `runcmd` / `scripts_user` succeeded.
