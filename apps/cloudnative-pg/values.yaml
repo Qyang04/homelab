@@ -1,0 +1,13 @@
+# CloudNativePG operator. Chart: cloudnative-pg 0.29.1 (CNPG 1.30.1) from
+# https://cloudnative-pg.github.io/charts, deployed by clusters/prod/apps/cloudnative-pg.yaml.
+# The operator only manages Postgres; each app declares its own `Cluster` resource
+# in its own namespace (clusterWide: true, the chart default, watches all namespaces).
+
+# Chart defaults already meet Pod Security "restricted"; only add limits.
+resources:
+  requests: { cpu: 20m, memory: 64Mi }
+  limits: { memory: 256Mi }
+
+# PodMonitor comes with the observability stack (Phase 2); no Prometheus CRDs yet.
+monitoring:
+  podMonitorEnabled: false
