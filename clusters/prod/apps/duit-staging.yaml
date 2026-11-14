@@ -1,0 +1,24 @@
+# Duit staging. The app repo owns its manifests (duit/deploy); this repo owns where they run.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: duit-staging
+  namespace: argocd
+spec:
+  project: default
+  source:
+    repoURL: https://github.com/Qyang04/duit.git
+    targetRevision: main
+    path: deploy/overlays/staging
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: duit-staging
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    managedNamespaceMetadata:
+      labels:
+        pod-security.kubernetes.io/enforce: restricted
+    syncOptions:
+      - CreateNamespace=true
