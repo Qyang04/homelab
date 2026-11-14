@@ -16,6 +16,9 @@ configs:
   params:
     # TLS ends at Traefik (cert-manager certificate); Argo CD serves plain HTTP inside the cluster.
     server.insecure: true
+  cm:
+    # Let kustomize run exec plugins, so KSOPS can decrypt SOPS files at render time.
+    kustomize.buildOptions: --enable-alpha-plugins --enable-exec
 
 controller:
   resources:
@@ -25,6 +28,35 @@ repoServer:
   resources:
     requests: { cpu: 20m, memory: 96Mi }
     limits: { memory: 256Mi }
+  # KSOPS (https://github.com/viaduct-ai/kustomize-sops): an init container copies the
+  # ksops binary into a shared volume; kustomize (Argo CD's own) finds it on PATH.
+  # The cluster age key comes from Secret argocd/sops-age, applied by hand on bootstrap
+  # (see runbooks/rebuild-node.md); its backup is secrets/argocd-sops-age.enc.yaml.
+  initContainers:
+    - name: install-ksops
+      image: viaductoss/ksops:v4.5.1
+      command: ["/usr/local/bin/ksops", "install", "/custom-tools"]
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999
+        allowPrivilegeEscalation: false
+        readOnlyRootFilesystem: true
+        capabilities: { drop: ["ALL"] }
+        seccompProfile: { type: RuntimeDefault }
+      volumeMounts:
+        - { name: custom-tools, mountPath: /custom-tools }
+  volumes:
+    - name: custom-tools
+      emptyDir: {}
+    - name: sops-age
+      secret:
+        secretName: sops-age
+  volumeMounts:
+    - { name: custom-tools, mountPath: /usr/local/bin/ksops, subPath: ksops }
+    - { name: sops-age, mountPath: /sops-age, readOnly: true }
+  env:
+    - name: SOPS_AGE_KEY_FILE
+      value: /sops-age/keys.txt
 server:
   resources:
     requests: { cpu: 20m, memory: 64Mi }

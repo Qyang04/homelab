@@ -1,12 +1,23 @@
 # SOPS encrypts matching files for these age public keys.
-# Public keys only: they can encrypt, never decrypt.
+# Public keys only: they can encrypt, never decrypt. First matching rule wins.
+#
+# Two keys:
+#   age15zl4... = personal key (my PC, %AppData%\sops\age\keys.txt): decrypts everything.
+#   age1ke68... = cluster key (Secret argocd/sops-age, used by KSOPS in Argo CD):
+#                 decrypts only Kubernetes Secrets, never Terraform credentials.
 creation_rules:
-  # Kubernetes Secrets: encrypt only the secret values, keep metadata readable.
-  - path_regex: \.enc\.yaml$
+  # Backup of the cluster key itself: personal key only (restored by hand on a rebuild).
+  - path_regex: argocd-sops-age\.enc\.yaml$
     encrypted_regex: ^(data|stringData)$
     age: >-
       age15zl4fcjfekvad02xn6pu9yyxc65hsvzc3chdghngxjczxgmqy52s6yfmtl
-  # Env files (Terraform credentials): every value encrypted.
+  # Kubernetes Secrets deployed by Argo CD: encrypt only the secret values, keep metadata readable.
+  - path_regex: \.enc\.yaml$
+    encrypted_regex: ^(data|stringData)$
+    age: >-
+      age15zl4fcjfekvad02xn6pu9yyxc65hsvzc3chdghngxjczxgmqy52s6yfmtl,
+      age1ke68pvx8qnk6pj2dfrlwdm4ezqsv27xlhvqrccevv9qhzrjdaqrsug5fth
+  # Env files (Terraform credentials): every value encrypted, personal key only.
   - path_regex: \.enc\.env$
     age: >-
       age15zl4fcjfekvad02xn6pu9yyxc65hsvzc3chdghngxjczxgmqy52s6yfmtl

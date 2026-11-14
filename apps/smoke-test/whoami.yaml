@@ -13,7 +13,7 @@ metadata:
   name: whoami
   namespace: smoke-test
 spec:
-  replicas: 2
+  replicas: 1
   selector:
     matchLabels:
       app: whoami
