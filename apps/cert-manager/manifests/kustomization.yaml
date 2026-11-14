@@ -1,0 +1,7 @@
+# Rendered by Argo CD (app cert-manager-issuers) with KSOPS enabled.
+apiVersion: kustomize.config.k8s.io/v1beta1
+kind: Kustomization
+resources:
+  - cluster-issuers.yaml
+generators:
+  - secret-generator.yaml

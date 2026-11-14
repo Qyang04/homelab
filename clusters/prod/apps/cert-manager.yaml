@@ -48,3 +48,4 @@ spec:
       selfHeal: true
     syncOptions:
       - SkipDryRunOnMissingResource=true # ClusterIssuer CRD comes from cert-manager
+      - ServerSideApply=true # no last-applied annotation holding the decrypted token
