@@ -22,3 +22,4 @@ spec:
         pod-security.kubernetes.io/enforce: restricted
     syncOptions:
       - CreateNamespace=true
+      - ServerSideApply=true # Secrets from KSOPS: no plaintext copy in a last-applied annotation
