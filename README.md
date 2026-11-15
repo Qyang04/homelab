@@ -24,3 +24,8 @@ Everything secret lives in Git, encrypted with SOPS + age. Two keys:
 To add a Secret: write it as `secrets/<name>.enc.yaml`, `sops --encrypt --in-place` it,
 and list it in a KSOPS generator (example: `apps/cert-manager/manifests/secret-generator.yaml`).
 The cluster key itself is the one Secret applied by hand (`runbooks/rebuild-node.md`).
+
+App repos keep their own Secrets next to their manifests, encrypted for the same two keys
+(example: [duit](https://github.com/Qyang04/duit) `.sops.yaml` and `deploy/overlays/staging/secrets.enc.yaml`).
+Every Application that deploys Secrets uses `ServerSideApply=true`: client-side apply would copy
+the plaintext into a `last-applied-configuration` annotation.
