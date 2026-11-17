@@ -1,0 +1,13 @@
+# Barman Cloud plugin for CloudNativePG. Chart: plugin-barman-cloud 0.8.1 (plugin v0.15.1) from
+# https://cloudnative-pg.github.io/charts, deployed by clusters/prod/apps/plugin-barman-cloud.yaml.
+#
+# What it does: Postgres clusters that list this plugin get a sidecar that ships WAL segments
+# continuously and base backups on schedule to an object store (Cloudflare R2), declared per
+# namespace as an `ObjectStore`. Replaces the deprecated in-tree `barmanObjectStore`.
+# It must run in the operator's namespace (cnpg-system). The CNPG operator calls it over gRPC with
+# mutual TLS; the chart's self-signed cert-manager Issuer makes those certificates.
+
+# Chart defaults already meet Pod Security "restricted"; only add requests and limits.
+resources:
+  requests: { cpu: 10m, memory: 48Mi }
+  limits: { memory: 192Mi }

@@ -29,3 +29,11 @@ App repos keep their own Secrets next to their manifests, encrypted for the same
 (example: [duit](https://github.com/Qyang04/duit) `.sops.yaml` and `deploy/overlays/staging/secrets.enc.yaml`).
 Every Application that deploys Secrets uses `ServerSideApply=true`: client-side apply would copy
 the plaintext into a `last-applied-configuration` annotation.
+
+## Backups
+
+Postgres: CloudNativePG with the [Barman Cloud plugin](https://cloudnative-pg.io/plugin-barman-cloud/)
+(`clusters/prod/apps/plugin-barman-cloud.yaml`, in `cnpg-system`). Each app declares an `ObjectStore`
+in its own namespace pointing at R2 bucket `homelab-backups` (`terraform/r2.tf`), one prefix per
+cluster, and lists the plugin in its `Cluster`: WAL is archived continuously, base backups run on a
+schedule. The deprecated in-tree `barmanObjectStore` is not used.

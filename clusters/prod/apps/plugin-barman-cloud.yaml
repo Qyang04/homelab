@@ -1,0 +1,28 @@
+# Barman Cloud plugin: continuous Postgres backups (WAL + base backups) to R2 for CNPG clusters.
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: plugin-barman-cloud
+  namespace: argocd
+spec:
+  project: default
+  sources:
+    - repoURL: https://cloudnative-pg.github.io/charts
+      chart: plugin-barman-cloud
+      targetRevision: 0.8.1
+      helm:
+        releaseName: barman-cloud
+        valueFiles:
+          - $values/apps/plugin-barman-cloud/values.yaml
+    - repoURL: https://github.com/Qyang04/homelab.git
+      targetRevision: main
+      ref: values
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: cnpg-system # next to the CNPG operator, which discovers plugins there
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
+    syncOptions:
+      - ServerSideApply=true # the ObjectStore CRD is large
